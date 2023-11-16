@@ -10,7 +10,7 @@
   "allocation": "SecondPrice",
   "agents": [
     {
-    "name": "TruthfulOracle1",
+    "name": "OurAgent",
     "num_copies": 1,
     "num_items": 12,
       "allocator": {
@@ -23,7 +23,7 @@
       }
     },
     {
-    "name": "TruthfulOracle2",
+    "name": "TruthfulOracle",
     "num_copies": 6,
     "num_items": 12,
       "allocator": {
@@ -35,6 +35,6 @@
         "kwargs": {}
       }
     }
-  ],
+],
   "output_dir": "results/SP_Oracle/"
 }
