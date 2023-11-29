@@ -1,6 +1,8 @@
 from main import parse_config, instantiate_agents, instantiate_auction
 
 
+class AdAuction:
+
 def ad_auction_2(config_file_name, rounds_per_iter=100):
     # Parse configuration file
     (
