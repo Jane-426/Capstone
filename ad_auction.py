@@ -2,9 +2,8 @@ import numpy as np
 
 from main import parse_config, instantiate_agents, instantiate_auction
 
-
 class AdAuction:
-    def __init__(self, config_file_name, rounds_per_iter=100, warm_up_iterations=1000):
+    def __init__(self, config_file_name, rounds_per_iter=100, warm_up_iterations=1000, extra_classes=None, seed=None):
         self._rounds_per_iter = rounds_per_iter
         (
             rng,
@@ -17,9 +16,9 @@ class AdAuction:
             embedding_size,
             embedding_var,
             obs_embedding_size,
-        ) = parse_config(config_file_name)
-        
-        self._agents = instantiate_agents(rng, agent_configs, agents2item_values, agents2items)
+        ) = parse_config(config_file_name, seed=seed)
+
+        self._agents = instantiate_agents(rng, agent_configs, agents2item_values, agents2items, extra_classes)
         self._auction, num_iter, _, output_dir = instantiate_auction(
             rng,
             config,

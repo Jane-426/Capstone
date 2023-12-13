@@ -1,43 +1,32 @@
 import numpy as np
 import torch
 from parameters_direct import ParametersDirect
-d
+from Models import BidShadingPolicy
+from Bidder import Bidder
 
+class BOBidder(Bidder):
 
-class PolicyLearningBidder(Bidder):
-    """ A bidder that estimates the optimal bid shading distribution via policy learning """
-
-    def __init__(self, rng, gamma_sigma, init_gamma=1.0):
-        self.gamma_sigma = gamma_sigma
-        #self.model = BidShadingContextualBandit(loss)
-        self.model_initialised = False
+    def __init__(self, rng):
+        super().__init__(rng)
+        self.model = BidShadingPolicy()
         self.parameter_handler = ParametersDirect(self.model)
-        super(PolicyLearningBidder, self).__init__(rng)
-
-    def bid(self, value, context, estimated_CTR):
-        # Compute the bid as expected value
+        num = len(self.get_parameters())
+        self.set_parameters(.1*rng.normal(size=(num,)))
+        # TODO: consider smaller values of BidShadingPolicy.min_sigma
+        
+    def bid(self, value, _, estimated_CTR):
         bid = value * estimated_CTR
-        if not self.model_initialised:
-            x = torch.Tensor([estimated_CTR, value])
-            gamma, propensity = self.model(x)
-            gamma = torch.clip(gamma, 0.0, 1.0)
-        else:
-            x = torch.Tensor([estimated_CTR, value])
-            gamma, propensity = self.model(x)
-            gamma = torch.clip(gamma, 0.0, 1.0)
 
-        bid *= gamma.detach().item() if self.model_initialised else gamma
+        x = torch.Tensor([estimated_CTR, value])
+        gamma, _ = self.model(x)
+        gamma = torch.clip(gamma, 0.0, 1.0).detach().item()
+        
+        bid *= gamma
         return bid
 
 
     def clear_logs(self, memory):
-        if not memory:
-            self.gammas = []
-            self.propensities = []
-        else:
-            self.gammas = self.gammas[-memory:]
-            self.propensities = self.propensities[-memory:]
-
+        pass
 
     def get_parameters(self) -> np.ndarray:
         return self.parameter_handler.get_params()
