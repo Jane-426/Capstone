@@ -20,6 +20,7 @@ g_params = dict(
     num_reps=10,
 )
 
+
 def evaluate(ad_auction, num_iterations):
     trace = []
     for _ in range(num_iterations):
@@ -45,21 +46,29 @@ def run_single_replication(args):
 
     # Objective function
     i_call = 0
+
     @use_named_args(param_space)
     def objective(**params):
         nonlocal i_call
         param_values = np.array(list(params.values()))
         bo_bidder.set_parameters(param_values)
-        advantage = evaluate(ad_auction, num_iterations=g_params['num_iterations'])
-        print ("OBJECTIVE:", os.getpid(), i_call, g_params['num_iterations'], g_params['n_calls'], advantage)
+        advantage = evaluate(ad_auction, num_iterations=g_params["num_iterations"])
+        print(
+            "OBJECTIVE:",
+            os.getpid(),
+            i_call,
+            g_params["num_iterations"],
+            g_params["n_calls"],
+            advantage,
+        )
         sys.stdout.flush()
-        i_call+=1
+        i_call += 1
         return -advantage
 
     result = gp_minimize(
         objective,
         param_space,
-        n_calls=g_params['n_calls'], 
+        n_calls=g_params["n_calls"],
         acq_func=acq_func,
         random_state=i_replication,
         verbose=True,
@@ -81,12 +90,13 @@ def run_single_replication(args):
 
     return output_path
 
+
 def run_experiment(acq_func):
-    print (f"EXPERIMENT: {g_params}")
+    print(f"EXPERIMENT: {g_params}")
     sys.stdout.flush()
-    
-    with Pool(g_params['num_reps']) as p:
-        args = [(g_params, acq_func, i) for i in range(g_params['num_reps'])]
+
+    with Pool(g_params["num_reps"]) as p:
+        args = [(g_params, acq_func, i) for i in range(g_params["num_reps"])]
         result_files = p.map(run_single_replication, args)
 
     # Collect results from files

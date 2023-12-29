@@ -2,8 +2,16 @@ import numpy as np
 
 from main import parse_config, instantiate_agents, instantiate_auction
 
+
 class AdAuction:
-    def __init__(self, config_file_name, rounds_per_iter=100, warm_up_iterations=1000, extra_classes=None, seed=None):
+    def __init__(
+        self,
+        config_file_name,
+        rounds_per_iter=100,
+        warm_up_iterations=1000,
+        extra_classes=None,
+        seed=None,
+    ):
         self._rounds_per_iter = rounds_per_iter
         (
             rng,
@@ -18,7 +26,9 @@ class AdAuction:
             obs_embedding_size,
         ) = parse_config(config_file_name, seed=seed)
 
-        self._agents = instantiate_agents(rng, agent_configs, agents2item_values, agents2items, extra_classes)
+        self._agents = instantiate_agents(
+            rng, agent_configs, agents2item_values, agents2items, extra_classes
+        )
         self._auction, num_iter, _, output_dir = instantiate_auction(
             rng,
             config,
@@ -35,7 +45,7 @@ class AdAuction:
     def _warm_up(self, warm_up_iterations):
         for _ in range(warm_up_iterations):
             self._auction.simulate_opportunity()
-        
+
     def us(self):
         return self._agents[0]
 
@@ -47,13 +57,14 @@ class AdAuction:
 
     def _net_utilty(self, agents):
         return np.mean([a.net_utility for a in agents])
-    
+
     def run_episode(self):
         for a in self._agents:
             a.clear_utility()
-        
+
         for _ in range(self._rounds_per_iter):
             self._auction.simulate_opportunity()
 
-        return (self._net_utilty([self.us()]) - self._net_utilty(self.them())) / self._mean_gross_utility()
-    
+        return (
+            self._net_utilty([self.us()]) - self._net_utilty(self.them())
+        ) / self._mean_gross_utility()
